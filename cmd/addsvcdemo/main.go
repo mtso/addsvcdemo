@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/mtso/addsvcdemo"
 	"net/http"
-	"net/http/pprof"
+	// "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
@@ -27,7 +27,7 @@ const (
 
 func main() {
 	var (
-		debugAddr = flag.String("debug.addr", ":8080", "Debug and metrics listen address")
+		// debugAddr = flag.String("debug.addr", ":8080", "Debug and metrics listen address")
 		httpAddr  = flag.String("http.addr", ":8081", "HTTP listen address")
 	)
 	flag.Parse()
@@ -105,9 +105,10 @@ func main() {
 	}()
 
 	// Debug listener
+	/*
 	go func() {
 		logger := log.NewContext(logger).With("transport", "debug")
-		// TODO
+
 		m := http.NewServeMux()
 		m.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
 		m.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
@@ -119,13 +120,14 @@ func main() {
 		logger.Log("addr", *debugAddr)
 		errc <- http.ListenAndServe(*debugAddr, m)
 	}()
+	/**/
 
 	// HTTP transport.
 	go func() {
 		logger := log.NewContext(logger).With("transport", "HTTP")
 		h := addsvcdemo.MakeHTTPHandler(ctx, endpoints, tracer, logger)
-		logger.Log("addr", *httpAddr) // TODO FIX THIS
-		errc <- http.ListenAndServe(*debugAddr, h)
+		logger.Log("addr", *httpAddr)
+		errc <- http.ListenAndServe(*httpAddr, h)
 	}()
 
 	// Run
