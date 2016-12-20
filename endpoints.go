@@ -2,11 +2,11 @@ package addsvcdemo
 
 import (
 	"fmt"
-	"time"
-	"golang.org/x/net/context"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/metrics"
+	"golang.org/x/net/context"
+	"time"
 )
 
 type Endpoints struct {
@@ -15,7 +15,7 @@ type Endpoints struct {
 
 // Sum implements Service
 func (e Endpoints) Sum(ctx context.Context, x, y int) (int, error) {
-	request := sumRequest{ X: x, Y: y }
+	request := sumRequest{X: x, Y: y}
 	response, err := e.SumEndpoint(ctx, request)
 	if err != nil {
 		return 0, err
@@ -26,24 +26,24 @@ func (e Endpoints) Sum(ctx context.Context, x, y int) (int, error) {
 // Returns an endpoint that invokes Sum on the service
 func MakeSumEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		sumRequest:= request.(sumRequest)
+		sumRequest := request.(sumRequest)
 		v, err := s.Sum(ctx, sumRequest.X, sumRequest.Y)
 		if err == ErrIntOverflow {
-			return nil, error
+			return nil, err
 		}
 		return sumResponse{
-			V: v,
-			Err: err
-		}
+			V:   v,
+			Err: err,
+		}, nil
 	}
 }
 
-// Returns an endpoint middleware that logs the duration 
+// Returns an endpoint middleware that logs the duration
 // of each invocation, and resulting error, if any
 func EndpointLoggingMiddleware(logger log.Logger) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-			
+
 			defer func(begin time.Time) {
 				logger.Log("error", err, "took", time.Since(begin))
 			}(time.Now())
@@ -67,10 +67,9 @@ func EndpointInstrumentingMiddleware(duration metrics.Histogram) endpoint.Middle
 	}
 }
 
-type sumRequest struct { X, Y int }
+type sumRequest struct{ X, Y int }
 
 type sumResponse struct {
-	V int
+	V   int
 	Err error
 }
-

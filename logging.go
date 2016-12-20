@@ -1,23 +1,21 @@
 package addsvcdemo
 
 import (
-	"time"
 	"github.com/go-kit/kit/log"
+	"golang.org/x/net/context"
+	"time"
 )
-
-// Middleware describes a service, as opposed to endpoint, middleware
-type Middleware func(Service) Service
 
 type serviceLoggingMiddleware struct {
 	logger log.Logger
-	next Service
+	next   Service
 }
 
 func ServiceLoggingMiddleware(logger log.Logger) Middleware {
 	return func(next Service) Service {
-		return serviceLoggingMiddleware {
+		return serviceLoggingMiddleware{
 			logger: logger,
-			next: next,
+			next:   next,
 		}
 	}
 }

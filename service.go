@@ -2,19 +2,22 @@ package addsvcdemo
 
 import (
 	"errors"
-	"time"
 	"golang.org/x/net/context"
 )
 
+// Declare service middleware once here for logging and instrumenting
+type Middleware func(Service) Service
+
 type Service interface {
-	Sum(ctx context.Context, x, y, int) (int, error)
+	Sum(ctx context.Context, x, y int) (int, error)
 }
+
 var (
 	ErrIntOverflow = errors.New("integer overflow")
 )
 
 func str2err(s string) error {
-	if s=="" {
+	if s == "" {
 		return nil
 	}
 	return errors.New(s)
@@ -40,7 +43,7 @@ const (
 
 // Sum implements Service
 func (s statelessService) Sum(_ context.Context, x, y int) (int, error) {
-	if (y > 0 && x > (intMax - y)) || (y < 0 && x < (intMin - y)) {
+	if (y > 0 && x > (intMax-y)) || (y < 0 && x < (intMin-y)) {
 		return 0, ErrIntOverflow
 	}
 	return x + y, nil
